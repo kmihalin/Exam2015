@@ -1,0 +1,56 @@
+const int button = 5; //declare constants
+const int knob = A0;
+const int thermistor = A1;
+const int element = 6
+
+void setup(){
+pinMode(button, INPUT); //set pins
+pinMode(element, OUTPUT);
+Serial.begin(9600); //begin serial communication
+}
+
+int toast; //stores whether toaster is on/off
+int degree; //stores position of knob
+unsigned long previous=0;
+int interval;
+int temp; //stores thermistor reading
+
+void loop(){
+toast = digitalRead(button); //read button
+degree = analogRead(knob); //read knob
+degree = map(degree, 0, 1023, 0, 4); //map knob from 0-4 levels of toasting
+temp=analogRead(thermistor); //read thermistor
+temp=map(temp, 0, 1023, 20, 600); //maps temperature reading from normal room to max toaster temp when on
+
+if(toast==LOW){ //if button off, element off
+digitalWrite(element, LOW);
+}
+
+else if(toast==HIGH){ //if button on
+switch(degree){ //switch through cases to find interval corresponding to knob
+case 0:
+interval = 30000;
+break;
+
+case 1:
+interval = 60000;
+break;
+
+case 2:
+interval = 90000;
+break;
+
+case 3:
+interval = 120000;
+break;
+
+case 4:
+interval = 150000;
+break;
+}
+
+if(millis()-previous<=interval && temp<=600){ //turn on element for given interval, not going over max temperature
+digitalWrite(element, HIGH);
+}
+}
+}
